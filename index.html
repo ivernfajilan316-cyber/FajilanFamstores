@@ -18,7 +18,6 @@
             background-color: var(--light);
         }
 
-        /* Navigation */
         header {
             background-color: var(--primary);
             color: white;
@@ -31,27 +30,26 @@
             z-index: 1000;
         }
 
-        .nav-btns { display: flex; gap: 10px; align-items: center; }
+        .categories {
+            background: white;
+            padding: 15px 5%;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid #ddd;
+        }
 
-        .btn-nav {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid white;
-            padding: 5px 15px;
+        .cat-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
             cursor: pointer;
-            border-radius: 4px;
+            white-space: nowrap;
         }
 
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            color: white;
-            text-align: center;
-            padding: 60px 20px;
-        }
+        .cat-btn.active { background: var(--accent); color: white; }
 
-        /* Main Layout */
         .container {
             padding: 2rem 5%;
             display: grid;
@@ -61,7 +59,7 @@
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 20px;
         }
 
@@ -71,12 +69,18 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             text-align: center;
-            transition: 0.3s;
         }
 
-        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
 
-        .product-card img { width: 100%; border-radius: 8px; }
+        .qty-input {
+            width: 70px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-weight: bold;
+        }
 
         .btn-add {
             background: var(--primary);
@@ -89,52 +93,17 @@
             margin-top: 10px;
         }
 
-        /* Cart & Contact Section */
         .sidebar { display: flex; flex-direction: column; gap: 20px; }
-
-        .box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
             border-bottom: 1px solid #eee;
-            padding: 8px 0;
+            padding-bottom: 5px;
         }
-
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        /* Modal / Login */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
-        }
-
-        .close-btn { float: right; cursor: pointer; font-weight: bold; }
 
         @media (max-width: 900px) {
             .container { grid-template-columns: 1fr; }
@@ -143,27 +112,18 @@
 </head>
 <body>
 
-<div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="toggleLogin()">×</span>
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn-add" onclick="doLogin()">Login</button>
-    </div>
-</div>
-
 <header>
     <div class="logo">FajilanFamSTORE</div>
-    <div class="nav-btns">
-        <button class="btn-nav" onclick="toggleLogin()" id="userBtn">Login</button>
-        <div style="background: var(--accent); padding: 5px 10px; border-radius: 5px;">🛒 <span id="cart-count">0</span></div>
-    </div>
+    <div style="background: var(--accent); padding: 5px 15px; border-radius: 5px;">🛒 <span id="cart-count">0</span></div>
 </header>
 
-<div class="hero">
-    <h1>Welcome to FajilanFamSTORE</h1>
-    <p>Ang paboritong tambayan ng pamilya para sa de-kalidad na gamit!</p>
+<div class="categories">
+    <button class="cat-btn active" onclick="filterProducts('All')">Lahat</button>
+    <button class="cat-btn" onclick="filterProducts('Rice')">Rice</button>
+    <button class="cat-btn" onclick="filterProducts('Frozen Meat')">Frozen Meat</button>
+    <button class="cat-btn" onclick="filterProducts('Drinks')">Inumin</button>
+     <button class="cat-btn" onclick="filterProducts('Trigo')">Trigo</button>
+      <button class="cat-btn" onclick="filterProducts('Alak')">Alak</button>
 </div>
 
 <div class="container">
@@ -174,53 +134,92 @@
             <h3>🛒 My Cart</h3>
             <div id="cart-items"><p style="color:gray">Empty cart</p></div>
             <hr>
-            <div style="font-weight:bold; color:var(--accent)">Total: ₱<span id="cart-total">0</span></div>
-            <button class="btn-add" style="background:var(--success)" onclick="checkout()">Checkout</button>
-        </div>
-
-        <div class="box">
-            <h3>📧 Contact Us</h3>
-            <form id="contactForm">
-                <input type="text" placeholder="Your Name" required>
-                <textarea placeholder="Message..." rows="3" required></textarea>
-                <button type="submit" class="btn-add" style="background:#34495e">Send Message</button>
-            </form>
+            <div style="font-weight:bold; color:var(--accent); font-size: 1.2rem;">Total: ₱<span id="cart-total">0</span></div>
+            <button class="btn-add" style="background:var(--success)" onclick="checkout()">Checkout Order</button>
         </div>
     </div>
 </div>
 
 <script>
-    const products = [
-        { id: 1, name: "Premium T-Shirt", price: 350, img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80" },
-        { id: 2, name: "Family Hoodie", price: 750, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=200&q=80" },
-        { id: 3, name: "Fam Cap", price: 250, img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=200&q=80" },
-        { id: 4, name: "Store Mug", price: 180, img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=200&q=80" },
-    ];
+    // LISTAHAN NG PRODUKTO
+   const products = [
+        { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", unit: "Kilo", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
 
+        { id: 2, name: "Rice (Per Sako)", price: 1200, cat: "Rice", unit: "Sako", img: "https://i.pinimg.com/1200x/44/59/c3/4459c32b1dda924be7fd8a1cf847621c.jpg" },
+
+        { id: 3, name: "Frozen Hatdog(large)", price: 15, cat: "Frozen Meat", unit: "Piraso", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=250" },
+
+        { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", unit: "per pack", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
+
+        { id: 5, name: "Coke", price: 25, cat: "Drinks", unit: "Piraso", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
+
+        { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" },
+
+        { id: 7, name: "Trigo (Per Kilo)", price: 28, cat: "Trigo", unit: "Kilo", img: "https://i.imgur.com/pHZ4nxx.jpg" },
+
+        { id: 8, name: "Trigo (Per Sako)", price: 1200, cat: "Trigo", unit: "Sako", img: "https://i.imgur.com/pHZ4nxx.jpg" },
+
+    { id: 9, name: "Gin (Per kahon)", price: 1340, cat: "Alak", unit: "kahon", img: "https://i.pinimg.com/1200x/c0/28/00/c028005524a299d752a7ff938c93929b.jpg" },
+    { id: 10, name: "Gin (Per Piraso)", price: 120, cat: "Alak", unit: "Piraso", img: "https://i.pinimg.com/736x/78/30/b2/7830b2adc06b44701a9d927e95a9536f.jpg" },
+    { id: 11, name: "Mountain Dew", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/78/1d/56/781d56b561ea5c665c0a56d29e01869c.jpg" },
+    { id: 12, name: "C2", price: 20, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/d5/54/5b/d5545bf15b8142c2554ea366adcbe659.jpg" }
+];
     let cart = [];
+    let currentCategory = 'All';
 
     function init() {
         const list = document.getElementById('products-list');
-        list.innerHTML = products.map(p => `
+        const filtered = currentCategory === 'All' ? products : products.filter(p => p.cat === currentCategory);
+        
+        list.innerHTML = filtered.map(p => `
             <div class="product-card">
                 <img src="${p.img}" alt="${p.name}">
-                <h4>${p.name}</h4>
-                <p>₱${p.price}</p>
+                <h3>${p.name}</h3>
+                <p style="color:var(--accent); font-weight:bold;">₱${p.price.toLocaleString()} per ${p.unit}</p>
+                <div style="margin: 10px 0;">
+                    <label>Ilan:</label>
+                    <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1" oninput="updateSubtotal(${p.id}, ${p.price})">
+                </div>
+                <div id="subtotal-${p.id}" style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Total: ₱${p.price.toLocaleString()}</div>
                 <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
             </div>
         `).join('');
     }
 
+    window.updateSubtotal = (id, price) => {
+        const qty = document.getElementById(`qty-${id}`).value;
+        const subtotal = qty * price;
+        document.getElementById(`subtotal-${id}`).innerText = `Total: ₱${subtotal.toLocaleString()}`;
+    };
+
+    window.filterProducts = (cat) => {
+        currentCategory = cat;
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.classList.toggle('active', (cat === 'All' ? btn.innerText === 'Lahat' : btn.innerText === (cat === 'Rice' ? 'Rice' : cat === 'Drinks' ? 'Inumin' : cat == 'Trigo'? 'Trigo' : cat)));
+        });
+        init();
+    };
+
     window.addToCart = (id) => {
-        const item = products.find(p => p.id === id);
-        cart.push(item);
+        const product = products.find(p => p.id === id);
+        const qty = parseInt(document.getElementById(`qty-${id}`).value);
+        if(qty < 1) return alert("Maglagay ng tamang dami.");
+
+        cart.push({
+            name: product.name,
+            qty: qty,
+            unit: product.unit,
+            totalPrice: product.price * qty
+        });
+        
         updateCart();
+        alert(`Added ${qty} ${product.unit} of ${product.name}`);
     };
 
     function updateCart() {
         const itemsDiv = document.getElementById('cart-items');
         document.getElementById('cart-count').innerText = cart.length;
-        
+
         if(cart.length === 0) {
             itemsDiv.innerHTML = '<p style="color:gray">Empty cart</p>';
             document.getElementById('cart-total').innerText = "0";
@@ -229,83 +228,51 @@
 
         itemsDiv.innerHTML = cart.map((item, idx) => `
             <div class="cart-item">
-                <span>${item.name}</span>
-                <span>₱${item.price} <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer">x</button></span>
+                <div>
+                    <b>${item.name}</b><br>
+                    <small>${item.qty} ${item.unit} x ₱${(item.totalPrice/item.qty).toLocaleString()}</small>
+                </div>
+                <div style="text-align:right">
+                    ₱${item.totalPrice.toLocaleString()} 
+                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">x</button>
+                </div>
             </div>
         `).join('');
-        
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
-        document.getElementById('cart-total').innerText = total.toLocaleString();
+
+        const grandTotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+        document.getElementById('cart-total').innerText = grandTotal.toLocaleString();
     }
 
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
-    // --- UPDATED CHECKOUT WITH ACTIVE PHONE NUMBER ---
     window.checkout = () => {
-        if(cart.length === 0) {
-            return alert("Mag-add muna ng items sa cart!");
-        }
-
-        // 1. Impormasyon ng customer
-        const name = prompt("Anong pangalan mo?");
-        if (!name) return;
+        if(cart.length === 0) return alert("Walang laman ang cart!");
         
-        const address = prompt("Saan ang delivery address?");
-        if (!address) return;
+        const name = prompt("Pangalan:");
+        const address = prompt("Address:");
+        const phone = prompt("CP Number mo:");
 
-        const customerPhone = prompt("Ibigay ang iyong Active Phone Number:");
-        if (!customerPhone) return;
+        if(!name || !address || !phone) return alert("Kailangan ng impormasyon!");
 
-        // 2. Ang iyong Phone Number (May-ari ng tindahan)
         const myNumber = "09193349618";
-        
-        // 3. I-format ang SMS Message
-        let orderSummary = `FAJILAN STORE ORDER:%0a`;
-        orderSummary += `Pangalan: ${name}%0a`;
-        orderSummary += `Address: ${address}%0a`;
-        orderSummary += `Customer CP: ${customerPhone}%0a`;
-        orderSummary += `-----------------%0a`;
-        
-        cart.forEach((item, index) => {
-            orderSummary += `${index + 1}. ${item.name} - ₱${item.price}%0a`;
+        let summary = `FAJILAN FAM STORE ORDER%0a`;
+        summary += `--------------------%0a`;
+        summary += `Costumer: ${name}%0a`;
+        summary += `Address: ${address}%0a`;
+        summary += `CP: ${phone}%0a`;
+        summary += `--------------------%0a`;
+
+        cart.forEach((item, i) => {
+            summary += `${i+1}. ${item.name} (${item.qty} ${item.unit}) = ₱${item.totalPrice}%0a`;
         });
 
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
-        orderSummary += `-----------------%0a`;
-        orderSummary += `TOTAL: ₱${total.toLocaleString()}`;
+        const grandTotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+        summary += `--------------------%0a`;
+        summary += `TOTAL: ₱${grandTotal.toLocaleString()}`;
 
-        // 4. Confirmation alert
-        const confirmOrder = confirm("Ise-send ang iyong order summary via SMS. I-click ang OK at i-press ang SEND button sa iyong messaging app.");
-        
-        if(confirmOrder) {
-            // Bubuksan ang SMS app
-            window.location.href = `sms:${myNumber}?body=${orderSummary}`;
-
-            // Linisin ang cart
-            cart = []; 
-            updateCart();
-        }
-    };
-
-    window.toggleLogin = () => {
-        const modal = document.getElementById('loginModal');
-        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-    };
-
-    window.doLogin = () => {
-        const user = document.getElementById('username').value;
-        if(user) {
-            document.getElementById('userBtn').innerText = "Hi, " + user;
-            toggleLogin();
-        } else {
-            alert("Please enter a username");
-        }
-    };
-
-    document.getElementById('contactForm').onsubmit = (e) => {
-        e.preventDefault();
-        alert("Salamat! Natanggap namin ang iyong mensahe.");
-        e.target.reset();
+        window.location.href = `sms:${myNumber}?body=${summary}`;
+        cart = [];
+        updateCart();
     };
 
     init();
