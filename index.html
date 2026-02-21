@@ -16,11 +16,10 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             background-color: var(--light);
             color: #333;
-            line-height: 1.5;
         }
 
         header {
@@ -32,13 +31,10 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 1100;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .logo { font-weight: bold; font-size: 1.2rem; }
-
-        /* Navigation Categories - Scrollable sa Mobile */
         .categories {
             background: var(--white);
             padding: 12px 5%;
@@ -46,9 +42,11 @@
             gap: 10px;
             overflow-x: auto;
             border-bottom: 1px solid #ddd;
-            scrollbar-width: none; /* Hide scrollbar Firefox */
+            position: sticky;
+            top: 55px; /* Sakto sa ilalim ng header */
+            z-index: 1050;
         }
-        .categories::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
+        .categories::-webkit-scrollbar { display: none; }
 
         .cat-btn {
             background: #eee;
@@ -57,25 +55,48 @@
             border-radius: 20px;
             cursor: pointer;
             white-space: nowrap;
-            font-size: 14px;
-            transition: 0.3s;
         }
         .cat-btn.active { background: var(--accent); color: white; }
 
-        /* Main Container - Responsive Grid */
+        /* --- LAYOUT ADJUSTMENTS --- */
         .container {
-            padding: 15px 5%;
+            padding: 20px 5%;
             display: grid;
-            grid-template-columns: 1fr 320px; /* Desktop View */
-            gap: 20px;
+            grid-template-columns: 1fr 340px; /* Desktop */
+            gap: 25px;
+            align-items: start; /* Importante para sa sticky effect */
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 2 columns sa small mobile */
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 15px;
         }
 
+        /* --- STEADY/STICKY CART --- */
+        .sidebar {
+            position: sticky;
+            top: 130px; /* Distansya mula sa itaas habang nag-scroll */
+            height: fit-content;
+            z-index: 1000;
+        }
+
+        .box { 
+            background: var(--white); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-height: 80vh; /* Para hindi lumampas sa screen kung mahaba ang listahan */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #cart-items {
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        /* Product Cards */
         .product-card {
             background: var(--white);
             padding: 12px;
@@ -91,72 +112,55 @@
             height: 130px; 
             object-fit: cover; 
             border-radius: 8px; 
-            margin-bottom: 10px;
         }
 
-        .product-card h3 { font-size: 1rem; margin: 5px 0; }
-
         .qty-input {
-            width: 60px;
+            width: 55px;
             padding: 6px;
             text-align: center;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
         }
 
         .btn-add {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 10px;
             width: 100%;
             cursor: pointer;
             border-radius: 8px;
-            margin-top: 10px;
             font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Sidebar/Cart */
-        .sidebar { order: 2; }
-        .box { 
-            background: var(--white); 
-            padding: 20px; 
-            border-radius: 12px; 
-            position: sticky;
-            top: 80px;
+            margin-top: 8px;
         }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
             font-size: 0.85rem;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f4f4f4;
             padding-bottom: 8px;
         }
 
-        /* --- MEDIA QUERIES PARA SA CELLPHONE --- */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 900px) {
             .container {
-                grid-template-columns: 1fr; /* Isang column na lang ang main layout */
+                grid-template-columns: 1fr;
             }
             .sidebar {
-                order: -1; /* Ilalagay ang cart sa itaas kung mobile o i-stack */
+                position: sticky;
+                top: 115px; /* Mananatili sa itaas ng products sa mobile */
+                margin-bottom: 20px;
+                z-index: 1001;
+            }
+            .box {
+                padding: 12px;
+                max-height: 200px; /* Mas maliit sa mobile para hindi kainin ang screen */
             }
             .products-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 items magkatabi sa mobile */
+                grid-template-columns: repeat(2, 1fr);
             }
-        }
-
-        @media (max-width: 480px) {
-            .products-grid {
-                gap: 10px; /* Mas maliit na gap sa maliliit na screen */
-            }
-            .product-card { padding: 8px; }
-            .product-card img { height: 110px; }
-            .logo { font-size: 1rem; }
         }
     </style>
 </head>
@@ -164,7 +168,7 @@
 
 <header>
     <div class="logo">FajilanFamSTORE</div>
-    <div style="background: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem;">
+    <div style="background: var(--accent); padding: 5px 12px; border-radius: 20px;">
         🛒 <span id="cart-count">0</span>
     </div>
 </header>
@@ -183,13 +187,13 @@
 
     <div class="sidebar">
         <div class="box">
-            <h3 style="margin-top:0">🛒 My Cart</h3>
-            <div id="cart-items"><p style="color:gray">Empty cart</p></div>
-            <hr style="border: 0; border-top: 1px solid #eee;">
-            <div style="font-weight:bold; color:var(--accent); font-size: 1.2rem; margin-bottom: 10px;">
+            <h3 style="margin:0 0 10px 0; font-size: 1.1rem;">🛒 My Cart</h3>
+            <div id="cart-items"><p style="color:gray; font-size: 0.9rem;">Walang laman...</p></div>
+            <hr style="border:0; border-top:1px solid #eee; margin: 10px 0;">
+            <div style="font-weight:bold; color:var(--accent); font-size: 1.1rem; margin-bottom: 10px;">
                 Total: ₱<span id="cart-total">0</span>
             </div>
-            <button class="btn-add" style="background:var(--success)" onclick="checkout()">Checkout Order</button>
+            <button class="btn-add" style="background:var(--success); margin:0;" onclick="checkout()">Checkout Order</button>
         </div>
     </div>
 </div>
@@ -212,12 +216,9 @@
 
     let cart = [];
     let currentCategory = 'All';
-    let lastClick = 0; // Security against spam
+    let lastClick = 0;
 
-    // Security: Anti-XSS (Nililinis ang input ng user)
-    function cleanInput(str) {
-        return str.replace(/[^\w\s]/gi, '');
-    }
+    function cleanInput(str) { return str.replace(/[^\w\s]/gi, ''); }
 
     function init() {
         const list = document.getElementById('products-list');
@@ -225,17 +226,14 @@
         
         list.innerHTML = filtered.map(p => `
             <div class="product-card">
-                <div>
-                    <img src="${p.img}" alt="${p.name}">
-                    <h3>${p.name}</h3>
-                    <p style="color:var(--accent); font-weight:bold; margin: 5px 0;">₱${p.price.toLocaleString()} / ${p.unit}</p>
-                </div>
-                <div>
-                    <div style="display:flex; align-items:center; gap:10px; margin: 5px 0;">
-                        <small>Qty:</small>
+                <img src="${p.img}" alt="${p.name}">
+                <div style="margin-top:8px">
+                    <h3 style="font-size:0.95rem; margin:0">${p.name}</h3>
+                    <p style="color:var(--accent); font-weight:bold; margin:4px 0">₱${p.price.toLocaleString()}</p>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px">
                         <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1" oninput="updateSubtotal(${p.id}, ${p.price})">
+                        <small id="subtotal-${p.id}" style="color:#888">₱${p.price}</small>
                     </div>
-                    <div id="subtotal-${p.id}" style="font-size: 0.8rem; color: #777;">Total: ₱${p.price.toLocaleString()}</div>
                     <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
                 </div>
             </div>
@@ -244,8 +242,7 @@
 
     window.updateSubtotal = (id, price) => {
         const qty = document.getElementById(`qty-${id}`).value;
-        const subtotal = qty * price;
-        document.getElementById(`subtotal-${id}`).innerText = `Total: ₱${subtotal.toLocaleString()}`;
+        document.getElementById(`subtotal-${id}`).innerText = `₱${(qty * price).toLocaleString()}`;
     };
 
     window.filterProducts = (cat) => {
@@ -259,7 +256,7 @@
     window.addToCart = (id) => {
         const product = products.find(p => p.id === id);
         const qty = parseInt(document.getElementById(`qty-${id}`).value);
-        if(qty < 1 || isNaN(qty)) return alert("Ayusin ang dami.");
+        if(qty < 1 || isNaN(qty)) return;
 
         cart.push({
             name: product.name,
@@ -267,7 +264,6 @@
             unit: product.unit,
             totalPrice: product.price * qty
         });
-        
         updateCart();
     };
 
@@ -276,20 +272,20 @@
         document.getElementById('cart-count').innerText = cart.length;
 
         if(cart.length === 0) {
-            itemsDiv.innerHTML = '<p style="color:gray">Empty cart</p>';
+            itemsDiv.innerHTML = '<p style="color:gray; font-size:0.8rem">Walang laman...</p>';
             document.getElementById('cart-total').innerText = "0";
             return;
         }
 
         itemsDiv.innerHTML = cart.map((item, idx) => `
             <div class="cart-item">
-                <div>
+                <div style="max-width:70%">
                     <strong>${item.name}</strong><br>
-                    <small>${item.qty} ${item.unit} x ₱${(item.totalPrice/item.qty).toLocaleString()}</small>
+                    <small>${item.qty} ${item.unit}</small>
                 </div>
                 <div style="text-align:right">
                     ₱${item.totalPrice.toLocaleString()} 
-                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold; padding-left:10px">×</button>
+                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">×</button>
                 </div>
             </div>
         `).join('');
@@ -301,40 +297,27 @@
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
     window.checkout = () => {
-        // Security: Rate Limiting (5 sec interval)
-        if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang sa pag-pindot.");
+        if (Date.now() - lastClick < 5000) return alert("Wait lang po!");
+        if(cart.length === 0) return alert("Cart is empty!");
         
-        if(cart.length === 0) return alert("Walang laman ang cart!");
-        
-        const rawName = prompt("Pangalan:");
+        const rawName = prompt("Name:");
         const rawAddress = prompt("Address:");
-        const rawPhone = prompt("CP Number:");
+        const rawPhone = prompt("Phone:");
 
-        if(!rawName || !rawAddress || !rawPhone) return alert("Kailangan ang impormasyon!");
+        if(!rawName || !rawAddress || !rawPhone) return;
 
-        // Security: Sanitize inputs
         const name = cleanInput(rawName);
         const address = cleanInput(rawAddress);
         const phone = cleanInput(rawPhone);
 
-        const myNumber = "09193349618";
-        let summary = `FAJILAN FAM STORE ORDER%0a`;
-        summary += `--------------------%0a`;
-        summary += `Customer: ${name}%0a`;
-        summary += `Address: ${address}%0a`;
-        summary += `CP: ${phone}%0a`;
-        summary += `--------------------%0a`;
-
+        let summary = `FAJILAN FAM STORE%0aCust: ${name}%0aLoc: ${address}%0a--------------------%0a`;
         cart.forEach((item, i) => {
-            summary += `${i+1}. ${item.name} (${item.qty} ${item.unit}) = ₱${item.totalPrice}%0a`;
+            summary += `${i+1}. ${item.name} (${item.qty}) = ₱${item.totalPrice}%0a`;
         });
-
-        const grandTotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
-        summary += `--------------------%0a`;
-        summary += `TOTAL: ₱${grandTotal.toLocaleString()}`;
+        summary += `--------------------%0aTOTAL: ₱${document.getElementById('cart-total').innerText}`;
 
         lastClick = Date.now();
-        window.location.href = `sms:${myNumber}?body=${summary}`;
+        window.location.href = `sms:09193349618?body=${summary}`;
         cart = [];
         updateCart();
     };
