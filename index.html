@@ -195,8 +195,7 @@
         { id: 2, name: "Family Hoodie", price: 750, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=200&q=80" },
         { id: 3, name: "Fam Cap", price: 250, img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=200&q=80" },
         { id: 4, name: "Store Mug", price: 180, img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=200&q=80" },
-          { id: 4, name: "Store hatdog", price: 180, img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=200&q=80" },
-    
+         
     ];
 
     let cart = [];
@@ -261,11 +260,15 @@
         return alert("Mag-add muna ng items sa cart!");
     }
 
-    // 1. ILAGAY DITO ANG IYONG PHONE NUMBER
-    // Halimbawa: 09123456789
-    const myPhoneNumber = "09193349618"; 
+   const name = prompt("Pangalan:");
+    if (!name) return;
+    
+    const address = prompt("Address:");
+    if (!address) return;
 
-    // 2. I-format ang Order Details para sa SMS
+   
+    const myNumber = "09193349618";
+    
     let orderSummary = `FajilanFamSTORE ORDER:%0a`;
     cart.forEach((item, index) => {
         orderSummary += `${index + 1}. ${item.name} (₱${item.price})%0a`;
@@ -280,7 +283,7 @@
     if(confirmOrder) {
         // Ang format na ito ay gagana sa Android at iPhone
         // Ang %0a ay ginagamit para sa "new line" o enter sa text
-        window.location.href = `sms:${myPhoneNumber}?body=${orderSummary}`;
+        window.location.href = `sms:${myNumber}?body=${orderSummary}`;
 
         // Reset cart pagkatapos
         cart = []; 
