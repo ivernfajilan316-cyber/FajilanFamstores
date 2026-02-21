@@ -195,12 +195,10 @@
         { id: 2, name: "Family Hoodie", price: 750, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=200&q=80" },
         { id: 3, name: "Fam Cap", price: 250, img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=200&q=80" },
         { id: 4, name: "Store Mug", price: 180, img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=200&q=80" },
-         
     ];
 
     let cart = [];
 
-    // Initialize Products
     function init() {
         const list = document.getElementById('products-list');
         list.innerHTML = products.map(p => `
@@ -213,7 +211,6 @@
         `).join('');
     }
 
-    // Cart Logic
     window.addToCart = (id) => {
         const item = products.find(p => p.id === id);
         cart.push(item);
@@ -243,64 +240,49 @@
 
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
-   window.checkout = () => {
-    if(cart.length === 0) return alert("Mag-add muna ng items sa cart!");
-
-    // 1. Kunin ang listahan ng order
-    let orderDetails = "Bagong Order mula sa FajilanFamSTORE:%0a"; // %0a ay New Line
-    cart.forEach((item, index) => {
-        orderDetails += `${index + 1}. ${item.name} - ₱${item.price}%0a`;
-    });
-    
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    orderDetails += `%0a*Total Amount: ₱${total}*`;
-
+    // --- ETO ANG FIXED CHECKOUT FUNCTION ---
     window.checkout = () => {
-    if(cart.length === 0) {
-        return alert("Mag-add muna ng items sa cart!");
-    }
+        if(cart.length === 0) {
+            return alert("Mag-add muna ng items sa cart!");
+        }
 
-   const name = prompt("Pangalan:");
-    if (!name) return;
-    
-    const address = prompt("Address:");
-    if (!address) return;
-
-   
-    const myNumber = "09193349618";
-    
-    let orderSummary = `FajilanFamSTORE ORDER:%0a`;
-    cart.forEach((item, index) => {
-        orderSummary += `${index + 1}. ${item.name} (₱${item.price})%0a`;
-    });
-
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    orderSummary += `%0aTotal: ₱${total.toLocaleString()}%0a%0aMula kay: [Ilagay ang Pangalan]`;
-
-    // 3. Confirm sa customer
-    const confirmOrder = confirm("Ise-send ang iyong order summary via SMS para ma-process. I-click ang OK at i-press ang SEND sa iyong messaging app.");
-    
-    if(confirmOrder) {
-        // Ang format na ito ay gagana sa Android at iPhone
-        // Ang %0a ay ginagamit para sa "new line" o enter sa text
-        window.location.href = `sms:${myNumber}?body=${orderSummary}`;
-
-        // Reset cart pagkatapos
-        cart = []; 
-        updateCart();
-    }
-};
-
-   
+        // 1. Tanungin ang impormasyon ng customer
+        const name = prompt("Anong pangalan mo?");
+        if (!name) return;
         
-        // Reset cart pagkatapos
-        alert("Salamat! Pakipindot ang 'Send' sa bubukas na app para matanggap namin ang order mo.");
-        cart = []; 
-        updateCart();
-    }
+        const address = prompt("Saan ang delivery address?");
+        if (!address) return;
 
+        // 2. Ang iyong Phone Number
+        const myNumber = "09193349618";
+        
+        // 3. I-format ang SMS Message
+        let orderSummary = `FAJILAN STORE ORDER:%0a`;
+        orderSummary += `Pangalan: ${name}%0a`;
+        orderSummary += `Address: ${address}%0a`;
+        orderSummary += `-----------------%0a`;
+        
+        cart.forEach((item, index) => {
+            orderSummary += `${index + 1}. ${item.name} - ₱${item.price}%0a`;
+        });
 
-    // Login Logic
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        orderSummary += `-----------------%0a`;
+        orderSummary += `TOTAL: ₱${total.toLocaleString()}`;
+
+        // 4. Confirmation alert
+        const confirmOrder = confirm("Ise-send ang iyong order summary via SMS. I-click ang OK at i-press ang SEND button sa iyong messaging app.");
+        
+        if(confirmOrder) {
+            // Bubuksan ang SMS app at ilalagay ang draft message
+            window.location.href = `sms:${myNumber}?body=${orderSummary}`;
+
+            // Linisin ang cart
+            cart = []; 
+            updateCart();
+        }
+    };
+
     window.toggleLogin = () => {
         const modal = document.getElementById('loginModal');
         modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
@@ -316,7 +298,6 @@
         }
     };
 
-    // Contact Form Logic
     document.getElementById('contactForm').onsubmit = (e) => {
         e.preventDefault();
         alert("Salamat! Natanggap namin ang iyong mensahe.");
