@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FajilanFamSTORE | Official</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --light: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background-color: var(--light);
+        }
+
+        /* Navigation */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-btns { display: flex; gap: 10px; align-items: center; }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid white;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        /* Main Layout */
+        .container {
+            padding: 2rem 5%;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 30px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .product-card:hover { transform: translateY(-5px); }
+
+        .product-card img { width: 100%; border-radius: 8px; }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* Cart & Contact Section */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+            padding: 8px 0;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Modal / Login */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .close-btn { float: right; cursor: pointer; font-weight: bold; }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="toggleLogin()">×</span>
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn-add" onclick="doLogin()">Login</button>
+    </div>
+</div>
+
+<header>
+    <div class="logo">FajilanFamSTORE</div>
+    <div class="nav-btns">
+        <button class="btn-nav" onclick="toggleLogin()" id="userBtn">Login</button>
+        <div style="background: var(--accent); padding: 5px 10px; border-radius: 5px;">🛒 <span id="cart-count">0</span></div>
+    </div>
+</header>
+
+<div class="hero">
+    <h1>Welcome to FajilanFamSTORE</h1>
+    <p>Ang paboritong tambayan ng pamilya para sa de-kalidad na gamit!</p>
+</div>
+
+<div class="container">
+    <div class="products-grid" id="products-list"></div>
+
+    <div class="sidebar">
+        <div class="box">
+            <h3>🛒 My Cart</h3>
+            <div id="cart-items"><p style="color:gray">Empty cart</p></div>
+            <hr>
+            <div style="font-weight:bold; color:var(--accent)">Total: ₱<span id="cart-total">0</span></div>
+            <button class="btn-add" style="background:var(--success)" onclick="checkout()">Checkout</button>
+        </div>
+
+        <div class="box">
+            <h3>📧 Contact Us</h3>
+            <form id="contactForm">
+                <input type="text" placeholder="Your Name" required>
+                <textarea placeholder="Message..." rows="3" required></textarea>
+                <button type="submit" class="btn-add" style="background:#34495e">Send Message</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const products = [
+        { id: 1, name: "Premium T-Shirt", price: 350, img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80" },
+        { id: 2, name: "Family Hoodie", price: 750, img: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=200&q=80" },
+        { id: 3, name: "Fam Cap", price: 250, img: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=200&q=80" },
+        { id: 4, name: "Store Mug", price: 180, img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=200&q=80" },
+    ];
+
+    let cart = [];
+
+    // Initialize Products
+    function init() {
+        const list = document.getElementById('products-list');
+        list.innerHTML = products.map(p => `
+            <div class="product-card">
+                <img src="${p.img}" alt="${p.name}">
+                <h4>${p.name}</h4>
+                <p>₱${p.price}</p>
+                <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+            </div>
+        `).join('');
+    }
+
+    // Cart Logic
+    window.addToCart = (id) => {
+        const item = products.find(p => p.id === id);
+        cart.push(item);
+        updateCart();
+    };
+
+    function updateCart() {
+        const itemsDiv = document.getElementById('cart-items');
+        document.getElementById('cart-count').innerText = cart.length;
+        
+        if(cart.length === 0) {
+            itemsDiv.innerHTML = '<p style="color:gray">Empty cart</p>';
+            document.getElementById('cart-total').innerText = "0";
+            return;
+        }
+
+        itemsDiv.innerHTML = cart.map((item, idx) => `
+            <div class="cart-item">
+                <span>${item.name}</span>
+                <span>₱${item.price} <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer">x</button></span>
+            </div>
+        `).join('');
+        
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        document.getElementById('cart-total').innerText = total.toLocaleString();
+    }
+
+    window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
+
+   window.checkout = () => {
+    if(cart.length === 0) return alert("Mag-add muna ng items sa cart!");
+
+    // 1. Kunin ang listahan ng order
+    let orderDetails = "Bagong Order mula sa FajilanFamSTORE:%0a"; // %0a ay New Line
+    cart.forEach((item, index) => {
+        orderDetails += `${index + 1}. ${item.name} - ₱${item.price}%0a`;
+    });
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    orderDetails += `%0a*Total Amount: ₱${total}*`;
+
+    window.checkout = () => {
+    if(cart.length === 0) {
+        return alert("Mag-add muna ng items sa cart!");
+    }
+
+    // 1. ILAGAY DITO ANG IYONG PHONE NUMBER
+    // Halimbawa: 09123456789
+    const myPhoneNumber = "09193349618"; 
+
+    // 2. I-format ang Order Details para sa SMS
+    let orderSummary = `FajilanFamSTORE ORDER:%0a`;
+    cart.forEach((item, index) => {
+        orderSummary += `${index + 1}. ${item.name} (₱${item.price})%0a`;
+    });
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    orderSummary += `%0aTotal: ₱${total.toLocaleString()}%0a%0aMula kay: [Ilagay ang Pangalan]`;
+
+    // 3. Confirm sa customer
+    const confirmOrder = confirm("Ise-send ang iyong order summary via SMS para ma-process. I-click ang OK at i-press ang SEND sa iyong messaging app.");
+    
+    if(confirmOrder) {
+        // Ang format na ito ay gagana sa Android at iPhone
+        // Ang %0a ay ginagamit para sa "new line" o enter sa text
+        window.location.href = `sms:${myPhoneNumber}?body=${orderSummary}`;
+
+        // Reset cart pagkatapos
+        cart = []; 
+        updateCart();
+    }
+};
+
+   
+        
+        // Reset cart pagkatapos
+        alert("Salamat! Pakipindot ang 'Send' sa bubukas na app para matanggap namin ang order mo.");
+        cart = []; 
+        updateCart();
+    }
+
+
+    // Login Logic
+    window.toggleLogin = () => {
+        const modal = document.getElementById('loginModal');
+        modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    };
+
+    window.doLogin = () => {
+        const user = document.getElementById('username').value;
+        if(user) {
+            document.getElementById('userBtn').innerText = "Hi, " + user;
+            toggleLogin();
+        } else {
+            alert("Please enter a username");
+        }
+    };
+
+    // Contact Form Logic
+    document.getElementById('contactForm').onsubmit = (e) => {
+        e.preventDefault();
+        alert("Salamat! Natanggap namin ang iyong mensahe.");
+        e.target.reset();
+    };
+
+    init();
+</script>
+
+</body>
+</html>
