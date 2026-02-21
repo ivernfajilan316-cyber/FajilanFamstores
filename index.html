@@ -326,4 +326,318 @@
 </script>
 
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FajilanFamSTORE | Official</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --light: #f4f4f4;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            background-color: var(--light);
+            color: #333;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+        }
+
+        /* Sticky Categories */
+        .categories {
+            background: var(--white);
+            padding: 12px 5%;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 55px; /* Sakto sa ilalim ng Header */
+            z-index: 1900;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .cat-btn.active { background: var(--accent); color: white; }
+
+        /* --- STEADY / STICKY CART SA ITAAS --- */
+        .cart-sticky-section {
+            position: sticky;
+            top: 108px; /* Sakto sa ilalim ng Categories */
+            z-index: 1800;
+            padding: 10px 5%;
+            background: var(--light); /* Para hindi mag-overlap sa products habang nag-scroll */
+        }
+
+        .box-cart { 
+            background: var(--white); 
+            padding: 15px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border: 2px solid var(--accent);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #cart-items {
+            max-height: 100px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        /* Layout para sa Products */
+        .container {
+            padding: 10px 5% 30px 5%;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            background: var(--white);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-card img { 
+            width: 100%; 
+            height: 120px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+        }
+
+        .qty-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .checkout-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .product-card h3 { font-size: 0.9rem; }
+            .cart-header h3 { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">FajilanFamSTORE</div>
+    <div>🛒 <span id="cart-count-header">0</span></div>
+</header>
+
+<div class="categories">
+    <button class="cat-btn active" onclick="filterProducts('All')">Lahat</button>
+    <button class="cat-btn" onclick="filterProducts('Rice')">Rice</button>
+    <button class="cat-btn" onclick="filterProducts('Frozen Meat')">Frozen Meat</button>
+    <button class="cat-btn" onclick="filterProducts('Drinks')">Inumin</button>
+    <button class="cat-btn" onclick="filterProducts('Trigo')">Trigo</button>
+    <button class="cat-btn" onclick="filterProducts('Alak')">Alak</button>
+</div>
+
+<div class="cart-sticky-section">
+    <div class="box-cart">
+        <div class="cart-header">
+            <div>
+                <h3 style="margin:0; color:var(--primary);">My Cart (₱<span id="cart-total">0</span>)</h3>
+                <small id="cart-count-text">0 item(s) selected</small>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">CHECKOUT</button>
+        </div>
+        <div id="cart-items" style="display:none;">
+            </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="products-grid" id="products-list"></div>
+</div>
+
+<script>
+    const products = [
+        { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", unit: "Kilo", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
+        { id: 2, name: "Rice (Per Sako)", price: 1200, cat: "Rice", unit: "Sako", img: "https://i.pinimg.com/1200x/44/59/c3/4459c32b1dda924be7fd8a1cf847621c.jpg" },
+        { id: 3, name: "Frozen Hatdog(large)", price: 15, cat: "Frozen Meat", unit: "Piraso", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=250" },
+        { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", unit: "per pack", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
+        { id: 5, name: "Coke", price: 25, cat: "Drinks", unit: "Piraso", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
+        { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" },
+        { id: 7, name: "Trigo (Per Kilo)", price: 28, cat: "Trigo", unit: "Kilo", img: "https://i.imgur.com/pHZ4nxx.jpg" },
+        { id: 8, name: "Trigo (Per Sako)", price: 1200, cat: "Trigo", unit: "Sako", img: "https://i.imgur.com/pHZ4nxx.jpg" },
+        { id: 9, name: "Gin (Per kahon)", price: 1340, cat: "Alak", unit: "kahon", img: "https://i.pinimg.com/1200x/c0/28/00/c028005524a299d752a7ff938c93929b.jpg" },
+        { id: 10, name: "Gin (Per Piraso)", price: 120, cat: "Alak", unit: "Piraso", img: "https://i.pinimg.com/736x/78/30/b2/7830b2adc06b44701a9d927e95a9536f.jpg" },
+        { id: 11, name: "Mountain Dew", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/78/1d/56/781d56b561ea5c665c0a56d29e01869c.jpg" },
+        { id: 12, name: "C2", price: 20, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/d5/54/5b/d5545bf15b8142c2554ea366adcbe659.jpg" }
+    ];
+
+    let cart = [];
+    let currentCategory = 'All';
+    let lastClick = 0;
+
+    function sanitize(str) { return str.replace(/[^\w\s]/gi, ''); }
+
+    function init() {
+        const list = document.getElementById('products-list');
+        const filtered = currentCategory === 'All' ? products : products.filter(p => p.cat === currentCategory);
+        
+        list.innerHTML = filtered.map(p => `
+            <div class="product-card">
+                <img src="${p.img}" alt="${p.name}">
+                <div>
+                    <h3 style="margin:8px 0 4px 0">${p.name}</h3>
+                    <p style="color:var(--accent); font-weight:bold; margin:0 0 8px 0">₱${p.price}</p>
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1">
+                        <small style="color:#999">qty</small>
+                    </div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">ADD TO CART</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    window.filterProducts = (cat) => {
+        currentCategory = cat;
+        document.querySelectorAll('.cat-btn').forEach(btn => {
+            btn.classList.toggle('active', (cat === 'All' ? btn.innerText === 'Lahat' : btn.innerText === (cat === 'Rice' ? 'Rice' : cat === 'Drinks' ? 'Inumin' : cat == 'Trigo'? 'Trigo' : cat)));
+        });
+        init();
+    };
+
+    window.addToCart = (id) => {
+        const product = products.find(p => p.id === id);
+        const qty = parseInt(document.getElementById(`qty-${id}`).value);
+        if(qty < 1 || isNaN(qty)) return;
+
+        cart.push({
+            name: product.name,
+            qty: qty,
+            unit: product.unit,
+            totalPrice: product.price * qty
+        });
+        updateCart();
+    };
+
+    function updateCart() {
+        const itemsDiv = document.getElementById('cart-items');
+        const totalSpan = document.getElementById('cart-total');
+        const countHeader = document.getElementById('cart-count-header');
+        const countText = document.getElementById('cart-count-text');
+
+        countHeader.innerText = cart.length;
+        countText.innerText = `${cart.length} item(s) in your cart`;
+
+        if(cart.length === 0) {
+            itemsDiv.style.display = "none";
+            totalSpan.innerText = "0";
+            return;
+        }
+
+        itemsDiv.style.display = "block";
+        itemsDiv.innerHTML = cart.map((item, idx) => `
+            <div class="cart-item">
+                <span>${item.name} (${item.qty})</span>
+                <span>₱${item.totalPrice.toLocaleString()} <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">x</button></span>
+            </div>
+        `).join('');
+
+        const grandTotal = cart.reduce((sum, item) => sum + item.totalPrice, 0);
+        totalSpan.innerText = grandTotal.toLocaleString();
+    }
+
+    window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
+
+    window.checkout = () => {
+        if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang po.");
+        if(cart.length === 0) return alert("Empty cart!");
+        
+        const name = prompt("Name:");
+        const address = prompt("Address:");
+        if(!name || !address) return;
+
+        let summary = `FAJILAN FAM STORE%0aName: ${sanitize(name)}%0aAddress: ${sanitize(address)}%0a--------------------%0a`;
+        cart.forEach((item, i) => { summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}%0a`; });
+        summary += `--------------------%0aTOTAL: ₱${document.getElementById('cart-total').innerText}`;
+
+        lastClick = Date.now();
+        window.location.href = `sms:09193349618?body=${summary}`;
+        cart = [];
+        updateCart();
+    };
+
+    init();
+</script>
+
+</body>
 </html>
