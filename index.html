@@ -58,13 +58,13 @@
         }
         .cat-btn.active { background: var(--accent); color: white; }
 
-      
+       
         .cart-sticky-section {
             position: sticky;
             top: 108px; 
             z-index: 1800;
             padding: 10px 5%;
-            background: var(--light); /* Para hindi mag-overlap sa products habang nag-scroll */
+            background: var(--light); 
         }
 
         .box-cart { 
@@ -290,16 +290,16 @@
 
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
-    window.checkout = () => {
+   window.checkout = () => {
         if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang po.");
         if(cart.length === 0) return alert("Empty cart!");
         
-        const name = prompt("Name:");
+        const name = prompt("Pangalan:");
         const address = prompt("Address:");
-        const phoneNumber = prompt("Number:");
+        const phoneNumber = prompt("Phone Number:");
         if(!name || !address) return;
 
-        // I-format ang order summary para sa text/messenger
+        // I-format ang order summary
         let summary = `FAJILAN FAM STORE\n`;
         summary += `Name: ${sanitize(name)}\n`;
         summary += `Address: ${sanitize(address)}\n`;
@@ -311,24 +311,37 @@
         summary += `--------------------\n`;
         summary += `TOTAL: ₱${document.getElementById('cart-total').innerText}`;
 
+        // --- NEW: COPY TO CLIPBOARD FEATURE ---
+        const textArea = document.createElement("textarea");
+        textArea.value = summary;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert("Order details copied to clipboard! I-paste na lang sa Messenger.");
+        } catch (err) {
+            console.error('Hindi ma-copy ang text', err);
+        }
+        document.body.removeChild(textArea);
+        // --------------------------------------
+
         lastClick = Date.now();
 
-        // 1. Tanungin ang user kung saan gustong mag-send
-        const choice = confirm("Saan mo gustong i-send ang order?\n\nOK - Messenger\nCancel - SMS/Text");
+        // Tanungin ang user kung saan gustong mag-send
+        const choice = confirm("Saan mo gustong i-send ang order?\n\nCHAT - Messenger\nTEXT - SMS/Text");
 
         if (choice) {
-            // Messenger Link (Palitan ang 'YOUR_USERNAME' ng iyong FB Page o Profile Username)
-            // Halimbawa: https://m.me/fajilanfamstore
-            const fbUsername = "Ivern"; 
+            // Messenger Link (PALITAN MO ITO NG IYONG FB USERNAME O PAGE ID)
+            const fbUsername = "https://www.facebook.com/share/18KJNkgYg7/"; // Pwede ring FB profile link o Page name dito
             const encodedMsg = encodeURIComponent(summary);
             window.location.href = `https://m.me/ivern.21903${fbUsername}?text=${encodedMsg}`;
         } else {
-            // SMS Link (Original na setup mo)
+            // SMS Link
             const smsSummary = summary.replace(/\n/g, '%0a');
             window.location.href = `sms:09193349618?body=${smsSummary}`;
         }
 
-        // Reset cart pagkatapos ng aksyon
+        // Reset cart pagkatapos
         cart = [];
         updateCart();
     };
