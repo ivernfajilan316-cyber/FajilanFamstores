@@ -240,26 +240,30 @@
 
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
-    // --- ETO ANG FIXED CHECKOUT FUNCTION ---
+    // --- UPDATED CHECKOUT WITH ACTIVE PHONE NUMBER ---
     window.checkout = () => {
         if(cart.length === 0) {
             return alert("Mag-add muna ng items sa cart!");
         }
 
-        // 1. Tanungin ang impormasyon ng customer
+        // 1. Impormasyon ng customer
         const name = prompt("Anong pangalan mo?");
         if (!name) return;
         
         const address = prompt("Saan ang delivery address?");
         if (!address) return;
 
-        // 2. Ang iyong Phone Number
+        const customerPhone = prompt("Ibigay ang iyong Active Phone Number:");
+        if (!customerPhone) return;
+
+        // 2. Ang iyong Phone Number (May-ari ng tindahan)
         const myNumber = "09193349618";
         
         // 3. I-format ang SMS Message
         let orderSummary = `FAJILAN STORE ORDER:%0a`;
         orderSummary += `Pangalan: ${name}%0a`;
         orderSummary += `Address: ${address}%0a`;
+        orderSummary += `Customer CP: ${customerPhone}%0a`;
         orderSummary += `-----------------%0a`;
         
         cart.forEach((item, index) => {
@@ -274,7 +278,7 @@
         const confirmOrder = confirm("Ise-send ang iyong order summary via SMS. I-click ang OK at i-press ang SEND button sa iyong messaging app.");
         
         if(confirmOrder) {
-            // Bubuksan ang SMS app at ilalagay ang draft message
+            // Bubuksan ang SMS app
             window.location.href = `sms:${myNumber}?body=${orderSummary}`;
 
             // Linisin ang cart
