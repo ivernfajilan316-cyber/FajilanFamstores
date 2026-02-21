@@ -327,12 +327,12 @@
 
         lastClick = Date.now();
 
-        // Tanungin ang user kung saan gustong mag-send
-        const choice = confirm("Saan mo gustong i-send ang order?\n\nCHAT - Messenger\nTEXT - SMS/Text");
+       
+        const choice = confirm("Saan mo gustong i-send ang order?\nMessenger - Messenger\nText - SMS/Text");
 
         if (choice) {
-            // Messenger Link (PALITAN MO ITO NG IYONG FB USERNAME O PAGE ID)
-            const fbUsername = "https://www.facebook.com/share/18KJNkgYg7/"; // Pwede ring FB profile link o Page name dito
+            
+            const fbUsername = "https://m.me/ivern.21903";
             const encodedMsg = encodeURIComponent(summary);
             window.location.href = `https://m.me/ivern.21903${fbUsername}?text=${encodedMsg}`;
         } else {
@@ -341,7 +341,7 @@
             window.location.href = `sms:09193349618?body=${smsSummary}`;
         }
 
-        // Reset cart pagkatapos
+       
         cart = [];
         updateCart();
     };
