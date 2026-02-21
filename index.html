@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FajilanFamSTORE | Official</title>
     <style>
         :root {
@@ -10,103 +10,153 @@
             --accent: #e67e22;
             --success: #27ae60;
             --light: #f4f4f4;
+            --white: #ffffff;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             background-color: var(--light);
+            color: #333;
+            line-height: 1.5;
         }
 
         header {
             background-color: var(--primary);
             color: white;
-            padding: 1rem 5%;
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
+        .logo { font-weight: bold; font-size: 1.2rem; }
+
+        /* Navigation Categories - Scrollable sa Mobile */
         .categories {
-            background: white;
-            padding: 15px 5%;
+            background: var(--white);
+            padding: 12px 5%;
             display: flex;
             gap: 10px;
             overflow-x: auto;
             border-bottom: 1px solid #ddd;
+            scrollbar-width: none; /* Hide scrollbar Firefox */
         }
+        .categories::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome/Safari */
 
         .cat-btn {
             background: #eee;
             border: none;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border-radius: 20px;
             cursor: pointer;
             white-space: nowrap;
+            font-size: 14px;
+            transition: 0.3s;
         }
-
         .cat-btn.active { background: var(--accent); color: white; }
 
+        /* Main Container - Responsive Grid */
         .container {
-            padding: 2rem 5%;
+            padding: 15px 5%;
             display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 30px;
+            grid-template-columns: 1fr 320px; /* Desktop View */
+            gap: 20px;
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* 2 columns sa small mobile */
+            gap: 15px;
         }
 
         .product-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
+            background: var(--white);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; }
+        .product-card img { 
+            width: 100%; 
+            height: 130px; 
+            object-fit: cover; 
+            border-radius: 8px; 
+            margin-bottom: 10px;
+        }
+
+        .product-card h3 { font-size: 1rem; margin: 5px 0; }
 
         .qty-input {
-            width: 70px;
-            padding: 8px;
+            width: 60px;
+            padding: 6px;
             text-align: center;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-weight: bold;
+            font-size: 1rem;
         }
 
         .btn-add {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
 
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        /* Sidebar/Cart */
+        .sidebar { order: 2; }
+        .box { 
+            background: var(--white); 
+            padding: 20px; 
+            border-radius: 12px; 
+            position: sticky;
+            top: 80px;
+        }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
         }
 
+        /* --- MEDIA QUERIES PARA SA CELLPHONE --- */
         @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
+            .container {
+                grid-template-columns: 1fr; /* Isang column na lang ang main layout */
+            }
+            .sidebar {
+                order: -1; /* Ilalagay ang cart sa itaas kung mobile o i-stack */
+            }
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 items magkatabi sa mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                gap: 10px; /* Mas maliit na gap sa maliliit na screen */
+            }
+            .product-card { padding: 8px; }
+            .product-card img { height: 110px; }
+            .logo { font-size: 1rem; }
         }
     </style>
 </head>
@@ -114,7 +164,9 @@
 
 <header>
     <div class="logo">FajilanFamSTORE</div>
-    <div style="background: var(--accent); padding: 5px 15px; border-radius: 5px;">🛒 <span id="cart-count">0</span></div>
+    <div style="background: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem;">
+        🛒 <span id="cart-count">0</span>
+    </div>
 </header>
 
 <div class="categories">
@@ -122,8 +174,8 @@
     <button class="cat-btn" onclick="filterProducts('Rice')">Rice</button>
     <button class="cat-btn" onclick="filterProducts('Frozen Meat')">Frozen Meat</button>
     <button class="cat-btn" onclick="filterProducts('Drinks')">Inumin</button>
-     <button class="cat-btn" onclick="filterProducts('Trigo')">Trigo</button>
-      <button class="cat-btn" onclick="filterProducts('Alak')">Alak</button>
+    <button class="cat-btn" onclick="filterProducts('Trigo')">Trigo</button>
+    <button class="cat-btn" onclick="filterProducts('Alak')">Alak</button>
 </div>
 
 <div class="container">
@@ -131,41 +183,41 @@
 
     <div class="sidebar">
         <div class="box">
-            <h3>🛒 My Cart</h3>
+            <h3 style="margin-top:0">🛒 My Cart</h3>
             <div id="cart-items"><p style="color:gray">Empty cart</p></div>
-            <hr>
-            <div style="font-weight:bold; color:var(--accent); font-size: 1.2rem;">Total: ₱<span id="cart-total">0</span></div>
+            <hr style="border: 0; border-top: 1px solid #eee;">
+            <div style="font-weight:bold; color:var(--accent); font-size: 1.2rem; margin-bottom: 10px;">
+                Total: ₱<span id="cart-total">0</span>
+            </div>
             <button class="btn-add" style="background:var(--success)" onclick="checkout()">Checkout Order</button>
         </div>
     </div>
 </div>
 
 <script>
-    // LISTAHAN NG PRODUKTO
-   const products = [
+    const products = [
         { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", unit: "Kilo", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
-
         { id: 2, name: "Rice (Per Sako)", price: 1200, cat: "Rice", unit: "Sako", img: "https://i.pinimg.com/1200x/44/59/c3/4459c32b1dda924be7fd8a1cf847621c.jpg" },
-
         { id: 3, name: "Frozen Hatdog(large)", price: 15, cat: "Frozen Meat", unit: "Piraso", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=250" },
-
         { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", unit: "per pack", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
-
         { id: 5, name: "Coke", price: 25, cat: "Drinks", unit: "Piraso", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
-
         { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" },
-
         { id: 7, name: "Trigo (Per Kilo)", price: 28, cat: "Trigo", unit: "Kilo", img: "https://i.imgur.com/pHZ4nxx.jpg" },
-
         { id: 8, name: "Trigo (Per Sako)", price: 1200, cat: "Trigo", unit: "Sako", img: "https://i.imgur.com/pHZ4nxx.jpg" },
+        { id: 9, name: "Gin (Per kahon)", price: 1340, cat: "Alak", unit: "kahon", img: "https://i.pinimg.com/1200x/c0/28/00/c028005524a299d752a7ff938c93929b.jpg" },
+        { id: 10, name: "Gin (Per Piraso)", price: 120, cat: "Alak", unit: "Piraso", img: "https://i.pinimg.com/736x/78/30/b2/7830b2adc06b44701a9d927e95a9536f.jpg" },
+        { id: 11, name: "Mountain Dew", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/78/1d/56/781d56b561ea5c665c0a56d29e01869c.jpg" },
+        { id: 12, name: "C2", price: 20, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/d5/54/5b/d5545bf15b8142c2554ea366adcbe659.jpg" }
+    ];
 
-    { id: 9, name: "Gin (Per kahon)", price: 1340, cat: "Alak", unit: "kahon", img: "https://i.pinimg.com/1200x/c0/28/00/c028005524a299d752a7ff938c93929b.jpg" },
-    { id: 10, name: "Gin (Per Piraso)", price: 120, cat: "Alak", unit: "Piraso", img: "https://i.pinimg.com/736x/78/30/b2/7830b2adc06b44701a9d927e95a9536f.jpg" },
-    { id: 11, name: "Mountain Dew", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/78/1d/56/781d56b561ea5c665c0a56d29e01869c.jpg" },
-    { id: 12, name: "C2", price: 20, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/d5/54/5b/d5545bf15b8142c2554ea366adcbe659.jpg" }
-];
     let cart = [];
     let currentCategory = 'All';
+    let lastClick = 0; // Security against spam
+
+    // Security: Anti-XSS (Nililinis ang input ng user)
+    function cleanInput(str) {
+        return str.replace(/[^\w\s]/gi, '');
+    }
 
     function init() {
         const list = document.getElementById('products-list');
@@ -173,15 +225,19 @@
         
         list.innerHTML = filtered.map(p => `
             <div class="product-card">
-                <img src="${p.img}" alt="${p.name}">
-                <h3>${p.name}</h3>
-                <p style="color:var(--accent); font-weight:bold;">₱${p.price.toLocaleString()} per ${p.unit}</p>
-                <div style="margin: 10px 0;">
-                    <label>Ilan:</label>
-                    <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1" oninput="updateSubtotal(${p.id}, ${p.price})">
+                <div>
+                    <img src="${p.img}" alt="${p.name}">
+                    <h3>${p.name}</h3>
+                    <p style="color:var(--accent); font-weight:bold; margin: 5px 0;">₱${p.price.toLocaleString()} / ${p.unit}</p>
                 </div>
-                <div id="subtotal-${p.id}" style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">Total: ₱${p.price.toLocaleString()}</div>
-                <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                <div>
+                    <div style="display:flex; align-items:center; gap:10px; margin: 5px 0;">
+                        <small>Qty:</small>
+                        <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1" oninput="updateSubtotal(${p.id}, ${p.price})">
+                    </div>
+                    <div id="subtotal-${p.id}" style="font-size: 0.8rem; color: #777;">Total: ₱${p.price.toLocaleString()}</div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                </div>
             </div>
         `).join('');
     }
@@ -203,7 +259,7 @@
     window.addToCart = (id) => {
         const product = products.find(p => p.id === id);
         const qty = parseInt(document.getElementById(`qty-${id}`).value);
-        if(qty < 1) return alert("Maglagay ng tamang dami.");
+        if(qty < 1 || isNaN(qty)) return alert("Ayusin ang dami.");
 
         cart.push({
             name: product.name,
@@ -213,7 +269,6 @@
         });
         
         updateCart();
-        alert(`Added ${qty} ${product.unit} of ${product.name}`);
     };
 
     function updateCart() {
@@ -229,12 +284,12 @@
         itemsDiv.innerHTML = cart.map((item, idx) => `
             <div class="cart-item">
                 <div>
-                    <b>${item.name}</b><br>
+                    <strong>${item.name}</strong><br>
                     <small>${item.qty} ${item.unit} x ₱${(item.totalPrice/item.qty).toLocaleString()}</small>
                 </div>
                 <div style="text-align:right">
                     ₱${item.totalPrice.toLocaleString()} 
-                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">x</button>
+                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold; padding-left:10px">×</button>
                 </div>
             </div>
         `).join('');
@@ -246,18 +301,26 @@
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
     window.checkout = () => {
+        // Security: Rate Limiting (5 sec interval)
+        if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang sa pag-pindot.");
+        
         if(cart.length === 0) return alert("Walang laman ang cart!");
         
-        const name = prompt("Pangalan:");
-        const address = prompt("Address:");
-        const phone = prompt("CP Number mo:");
+        const rawName = prompt("Pangalan:");
+        const rawAddress = prompt("Address:");
+        const rawPhone = prompt("CP Number:");
 
-        if(!name || !address || !phone) return alert("Kailangan ng impormasyon!");
+        if(!rawName || !rawAddress || !rawPhone) return alert("Kailangan ang impormasyon!");
+
+        // Security: Sanitize inputs
+        const name = cleanInput(rawName);
+        const address = cleanInput(rawAddress);
+        const phone = cleanInput(rawPhone);
 
         const myNumber = "09193349618";
         let summary = `FAJILAN FAM STORE ORDER%0a`;
         summary += `--------------------%0a`;
-        summary += `Costumer: ${name}%0a`;
+        summary += `Customer: ${name}%0a`;
         summary += `Address: ${address}%0a`;
         summary += `CP: ${phone}%0a`;
         summary += `--------------------%0a`;
@@ -270,6 +333,7 @@
         summary += `--------------------%0a`;
         summary += `TOTAL: ₱${grandTotal.toLocaleString()}`;
 
+        lastClick = Date.now();
         window.location.href = `sms:${myNumber}?body=${summary}`;
         cart = [];
         updateCart();
