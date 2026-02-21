@@ -58,10 +58,10 @@
         }
         .cat-btn.active { background: var(--accent); color: white; }
 
-        /* --- STEADY / STICKY CART SA ITAAS --- */
+      
         .cart-sticky-section {
             position: sticky;
-            top: 108px; /* Sakto sa ilalim ng Categories */
+            top: 108px; 
             z-index: 1800;
             padding: 10px 5%;
             background: var(--light); /* Para hindi mag-overlap sa products habang nag-scroll */
@@ -296,14 +296,39 @@
         
         const name = prompt("Name:");
         const address = prompt("Address:");
+        const phoneNumber = prompt("Number:");
         if(!name || !address) return;
 
-        let summary = `FAJILAN FAM STORE%0aName: ${sanitize(name)}%0aAddress: ${sanitize(address)}%0a--------------------%0a`;
-        cart.forEach((item, i) => { summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}%0a`; });
-        summary += `--------------------%0aTOTAL: ₱${document.getElementById('cart-total').innerText}`;
+        // I-format ang order summary para sa text/messenger
+        let summary = `FAJILAN FAM STORE\n`;
+        summary += `Name: ${sanitize(name)}\n`;
+        summary += `Address: ${sanitize(address)}\n`;
+        summary += `Contact: ${sanitize(phoneNumber || 'N/A')}\n`;
+        summary += `--------------------\n`;
+        cart.forEach((item, i) => { 
+            summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}\n`; 
+        });
+        summary += `--------------------\n`;
+        summary += `TOTAL: ₱${document.getElementById('cart-total').innerText}`;
 
         lastClick = Date.now();
-        window.location.href = `sms:09193349618?body=${summary}`;
+
+        // 1. Tanungin ang user kung saan gustong mag-send
+        const choice = confirm("Saan mo gustong i-send ang order?\n\nOK - Messenger\nCancel - SMS/Text");
+
+        if (choice) {
+            // Messenger Link (Palitan ang 'YOUR_USERNAME' ng iyong FB Page o Profile Username)
+            // Halimbawa: https://m.me/fajilanfamstore
+            const fbUsername = "Ivern"; 
+            const encodedMsg = encodeURIComponent(summary);
+            window.location.href = `https://m.me/ivern.21903${fbUsername}?text=${encodedMsg}`;
+        } else {
+            // SMS Link (Original na setup mo)
+            const smsSummary = summary.replace(/\n/g, '%0a');
+            window.location.href = `sms:09193349618?body=${smsSummary}`;
+        }
+
+        // Reset cart pagkatapos ng aksyon
         cart = [];
         updateCart();
     };
