@@ -12,6 +12,7 @@
             --light: #f4f4f4;
             --white: #ffffff;
             --admin: #8e44ad;
+            --danger: #ff0000;
         }
 
         * { box-sizing: border-box; }
@@ -55,6 +56,7 @@
             border-radius: 20px;
             cursor: pointer;
             white-space: nowrap;
+            font-weight: 500;
         }
         .cat-btn.active { background: var(--accent); color: white; }
 
@@ -81,12 +83,19 @@
         }
 
         #cart-items {
-            max-height: 100px;
+            max-height: 150px;
             overflow-y: auto;
             font-size: 0.85rem;
             margin-top: 10px;
             border-top: 1px solid #eee;
             padding-top: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 5px 0;
         }
 
         .container {
@@ -107,7 +116,6 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            position: relative;
         }
 
         .product-card img { 
@@ -115,6 +123,7 @@
             height: 120px; 
             object-fit: cover; 
             border-radius: 8px; 
+            background: #eee;
         }
 
         .qty-input {
@@ -148,15 +157,15 @@
         }
 
         .admin-btn {
-            background: var(--admin);
-            color: white;
+            width: 100%;
             border: none;
-            padding: 5px;
+            padding: 8px;
             margin-top: 5px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.7rem;
-            display: none; /* Hidden by default */
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
         }
 
         .admin-controls {
@@ -165,7 +174,6 @@
             color: white;
             padding: 15px;
             text-align: center;
-            border-radius: 0 0 15px 15px;
         }
 
         @media (max-width: 480px) {
@@ -176,14 +184,14 @@
 <body>
 
 <header>
-    <div class="logo" onclick="adminLogin()" style="cursor:pointer;">FajilanFamSTORE</div>
+    <div class="logo" onclick="adminLogin()" style="cursor:pointer; font-weight: bold;">FajilanFamSTORE</div>
     <div>🛒 <span id="cart-count-header">0</span></div>
 </header>
 
 <div id="admin-panel" class="admin-controls">
-    <strong>OWNER MODE ACTIVE</strong><br>
-    <button onclick="addNewProduct()" style="margin: 10px; padding: 10px;">➕ MAGDAGDAG NG PRODUKTO</button>
-    <button onclick="logoutAdmin()" style="background:red; color:white; border:none; padding:5px;">Logout</button>
+    <strong style="color: #f1c40f;">OWNER MODE ACTIVE</strong><br>
+    <button onclick="addNewProduct()" style="margin: 10px; padding: 10px; cursor:pointer;">➕ MAGDAGDAG NG PRODUKTO</button>
+    <button onclick="logoutAdmin()" style="background:var(--danger); color:white; border:none; padding:5px; cursor:pointer;">Logout</button>
 </div>
 
 <div class="categories">
@@ -213,23 +221,23 @@
 </div>
 
 <script>
-    // DEFAULT PRODUCTS (Initial list)
+    // Initial Products if LocalStorage is empty
     const defaultProducts = [
-        { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", unit: "Kilo", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
-        { id: 2, name: "Rice (Per Sako)", price: 1200, cat: "Rice", unit: "Sako", img: "https://i.pinimg.com/1200x/44/59/c3/4459c32b1dda924be7fd8a1cf847621c.jpg" },
-        { id: 3, name: "Frozen Hatdog(large)", price: 15, cat: "Frozen Meat", unit: "Piraso", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=250" },
-        { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", unit: "per pack", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
-        { id: 5, name: "Coke", price: 25, cat: "Drinks", unit: "Piraso", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
-        { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" }
+        { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
+        { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
+        { id: 5, name: "Coke", price: 25, cat: "Drinks", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
+        { id: 6, name: "Royal", price: 25, cat: "Drinks", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" }
     ];
 
-    // Load products from LocalStorage or use default
     let products = JSON.parse(localStorage.getItem('fajilan_prods')) || defaultProducts;
     let cart = [];
     let currentCategory = 'All';
-    let lastClick = 0;
 
-    function sanitize(str) { return str ? str.replace(/[^\w\s]/gi, '') : ''; }
+    // --- CORE FUNCTIONS ---
+
+    function saveToStorage() {
+        localStorage.setItem('fajilan_prods', JSON.stringify(products));
+    }
 
     function init() {
         const isOwner = sessionStorage.getItem('isFajilanOwner') === 'true';
@@ -240,17 +248,19 @@
         
         list.innerHTML = filtered.map(p => `
             <div class="product-card">
-                <img src="${p.img}" alt="${p.name}">
+                <img src="${p.img}" onerror="this.src='https://via.placeholder.com/250?text=No+Image'">
                 <div>
-                    <h3 style="margin:8px 0 4px 0">${p.name}</h3>
+                    <h3 style="margin:8px 0 4px 0; font-size:1rem;">${p.name}</h3>
                     <p style="color:var(--accent); font-weight:bold; margin:0 0 8px 0">₱${p.price}</p>
-                    <div style="display:flex; align-items:center; gap:5px;">
+                    <div style="display:flex; align-items:center; gap:5px; margin-bottom:10px;">
                         <input type="number" class="qty-input" id="qty-${p.id}" value="1" min="1">
                         <small style="color:#999">qty</small>
                     </div>
                     <button class="btn-add" onclick="addToCart(${p.id})">ADD TO CART</button>
-                    ${isOwner ? `<button class="admin-btn" style="display:block;" onclick="editProduct(${p.id})">EDIT PRICE</button>` : ''}
-                    ${isOwner ? `<button class="admin-btn" style="display:block; background:red;" onclick="deleteProduct(${p.id})">DELETE</button>` : ''}
+                    ${isOwner ? `
+                        <button class="admin-btn" style="background:var(--admin);" onclick="editProduct(${p.id})">EDIT PRICE</button>
+                        <button class="admin-btn" style="background:var(--danger);" onclick="deleteProduct(${p.id})">DELETE</button>
+                    ` : ''}
                 </div>
             </div>
         `).join('');
@@ -259,7 +269,7 @@
     // --- ADMIN LOGIC ---
     window.adminLogin = () => {
         const pass = prompt("Enter Owner Password:");
-        if(pass === "fajilan2024") { // <--- ETO ANG PASSWORD MO
+        if(pass === "fajilan2024") {
             sessionStorage.setItem('isFajilanOwner', 'true');
             location.reload();
         }
@@ -277,9 +287,17 @@
         const img = prompt("Image URL (Link ng picture):");
         
         if(name && price && cat) {
-            products.push({ id: Date.now(), name, price: parseInt(price), cat, img: img || 'https://via.placeholder.com/250' });
-            localStorage.setItem('fajilan_prods', JSON.stringify(products));
-            init();
+            const newProd = { 
+                id: Date.now(), 
+                name, 
+                price: parseInt(price), 
+                cat, 
+                img: img || 'https://via.placeholder.com/250' 
+            };
+            products.push(newProd);
+            saveToStorage(); // Automatic save
+            init(); // Update dashboard
+            alert("Product Saved Automatically!");
         }
     };
 
@@ -288,7 +306,7 @@
         const newPrice = prompt(`Bagong presyo para sa ${prod.name}:`, prod.price);
         if(newPrice) {
             prod.price = parseInt(newPrice);
-            localStorage.setItem('fajilan_prods', JSON.stringify(products));
+            saveToStorage();
             init();
         }
     };
@@ -296,7 +314,7 @@
     window.deleteProduct = (id) => {
         if(confirm("Sigurado ka bang buburahin ito?")) {
             products = products.filter(p => p.id !== id);
-            localStorage.setItem('fajilan_prods', JSON.stringify(products));
+            saveToStorage();
             init();
         }
     }
@@ -305,18 +323,22 @@
     window.filterProducts = (cat) => {
         currentCategory = cat;
         document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.classList.toggle('active', (cat === 'All' ? btn.innerText === 'Lahat' : btn.innerText === (cat === 'Drinks' ? 'Inumin' : cat)));
+            const btnText = btn.innerText === 'Lahat' ? 'All' : (btn.innerText === 'Inumin' ? 'Drinks' : btn.innerText);
+            btn.classList.toggle('active', btnText === cat);
         });
         init();
     };
 
     window.addToCart = (id) => {
         const product = products.find(p => p.id === id);
-        const qty = parseInt(document.getElementById(`qty-${id}`).value);
+        const qtyInput = document.getElementById(`qty-${id}`);
+        const qty = parseInt(qtyInput.value);
+        
         if(qty < 1 || isNaN(qty)) return;
 
         cart.push({ name: product.name, qty: qty, totalPrice: product.price * qty });
         updateCart();
+        qtyInput.value = 1; // reset input
     };
 
     function updateCart() {
@@ -338,7 +360,9 @@
         itemsDiv.innerHTML = cart.map((item, idx) => `
             <div class="cart-item">
                 <span>${item.name} (x${item.qty})</span>
-                <span>₱${item.totalPrice.toLocaleString()} <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">x</button></span>
+                <span>₱${item.totalPrice.toLocaleString()} 
+                    <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer; font-weight:bold;">✕</button>
+                </span>
             </div>
         `).join('');
 
@@ -349,43 +373,36 @@
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
     window.checkout = () => {
-        if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang po.");
         if(cart.length === 0) return alert("Empty cart!");
         
-        const name = prompt("Pangalan:");
-        const address = prompt("Address:");
+        const name = prompt("Full Name:");
+        const address = prompt("Delivery Address:");
         if(!name || !address) return;
 
-        let summary = `FAJILAN FAM STORE\n`;
-        summary += `Customer: ${sanitize(name)}\n`;
-        summary += `Address: ${sanitize(address)}\n`;
+        let summary = `*FAJILAN FAM STORE ORDER*\n`;
+        summary += `Customer: ${name}\n`;
+        summary += `Address: ${address}\n`;
         summary += `--------------------\n`;
-        cart.forEach((item, i) => { summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}\n`; });
+        cart.forEach((item, i) => { 
+            summary += `${i+1}. ${item.name} (x${item.qty}) = ₱${item.totalPrice}\n`; 
+        });
         summary += `--------------------\n`;
-        summary += `TOTAL: ₱${document.getElementById('cart-total').innerText}`;
+        summary += `*TOTAL: ₱${document.getElementById('cart-total').innerText}*`;
 
-        // AUTO-COPY TO CLIPBOARD
-        const el = document.createElement('textarea');
-        el.value = summary;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
-        alert("Order copied! I-paste ito sa Messenger.");
-
-        lastClick = Date.now();
-        const choice = confirm("Saan isesend?\nOK - Messenger\nCancel - SMS");
+        const encodedMsg = encodeURIComponent(summary);
+        const choice = confirm("Send via Messenger? (Cancel for SMS)");
 
         if (choice) {
-            // Messenger Link
-            window.location.href = `https://m.me/ivern.21903?text=${encodeURIComponent(summary)}`;
+            window.location.href = `https://m.me/ivern.21903?text=${encodedMsg}`;
         } else {
-            // SMS Link
-            window.location.href = `sms:09193349618?body=${encodeURIComponent(summary)}`;
+            window.location.href = `sms:09193349618?body=${encodedMsg}`;
         }
-        cart = []; updateCart();
+        
+        cart = []; 
+        updateCart();
     };
 
+    // Load initial view
     init();
 </script>
 
