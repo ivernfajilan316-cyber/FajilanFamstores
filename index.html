@@ -11,6 +11,7 @@
             --success: #27ae60;
             --light: #f4f4f4;
             --white: #ffffff;
+            --admin: #8e44ad;
         }
 
         * { box-sizing: border-box; }
@@ -34,7 +35,6 @@
             z-index: 2000;
         }
 
-        /* Sticky Categories */
         .categories {
             background: var(--white);
             padding: 12px 5%;
@@ -43,7 +43,7 @@
             overflow-x: auto;
             border-bottom: 1px solid #ddd;
             position: sticky;
-            top: 55px; /* Sakto sa ilalim ng Header */
+            top: 55px;
             z-index: 1900;
         }
         .categories::-webkit-scrollbar { display: none; }
@@ -58,7 +58,6 @@
         }
         .cat-btn.active { background: var(--accent); color: white; }
 
-       
         .cart-sticky-section {
             position: sticky;
             top: 108px; 
@@ -90,7 +89,6 @@
             padding-top: 10px;
         }
 
-        /* Layout para sa Products */
         .container {
             padding: 10px 5% 30px 5%;
         }
@@ -109,6 +107,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
 
         .product-card img { 
@@ -148,27 +147,44 @@
             cursor: pointer;
         }
 
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #f9f9f9;
+        .admin-btn {
+            background: var(--admin);
+            color: white;
+            border: none;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: none; /* Hidden by default */
+        }
+
+        .admin-controls {
+            display: none;
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
         }
 
         @media (max-width: 480px) {
             .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .product-card h3 { font-size: 0.9rem; }
-            .cart-header h3 { font-size: 1rem; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">FajilanFamSTORE</div>
+    <div class="logo" onclick="adminLogin()" style="cursor:pointer;">FajilanFamSTORE</div>
     <div>🛒 <span id="cart-count-header">0</span></div>
 </header>
+
+<div id="admin-panel" class="admin-controls">
+    <strong>OWNER MODE ACTIVE</strong><br>
+    <button onclick="addNewProduct()" style="margin: 10px; padding: 10px;">➕ MAGDAGDAG NG PRODUKTO</button>
+    <button onclick="logoutAdmin()" style="background:red; color:white; border:none; padding:5px;">Logout</button>
+</div>
 
 <div class="categories">
     <button class="cat-btn active" onclick="filterProducts('All')">Lahat</button>
@@ -188,8 +204,7 @@
             </div>
             <button class="checkout-btn" onclick="checkout()">CHECKOUT</button>
         </div>
-        <div id="cart-items" style="display:none;">
-            </div>
+        <div id="cart-items" style="display:none;"></div>
     </div>
 </div>
 
@@ -198,28 +213,28 @@
 </div>
 
 <script>
-    const products = [
+    // DEFAULT PRODUCTS (Initial list)
+    const defaultProducts = [
         { id: 1, name: "Rice (Per Kilo)", price: 55, cat: "Rice", unit: "Kilo", img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=250" },
         { id: 2, name: "Rice (Per Sako)", price: 1200, cat: "Rice", unit: "Sako", img: "https://i.pinimg.com/1200x/44/59/c3/4459c32b1dda924be7fd8a1cf847621c.jpg" },
         { id: 3, name: "Frozen Hatdog(large)", price: 15, cat: "Frozen Meat", unit: "Piraso", img: "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=250" },
         { id: 4, name: "Dila Dila", price: 60, cat: "Frozen Meat", unit: "per pack", img: "https://images.unsplash.com/photo-1602491673980-73aa38de027a?w=250" },
         { id: 5, name: "Coke", price: 25, cat: "Drinks", unit: "Piraso", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=250" },
-        { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" },
-        { id: 7, name: "Trigo (Per Kilo)", price: 28, cat: "Trigo", unit: "Kilo", img: "https://i.imgur.com/pHZ4nxx.jpg" },
-        { id: 8, name: "Trigo (Per Sako)", price: 1200, cat: "Trigo", unit: "Sako", img: "https://i.imgur.com/pHZ4nxx.jpg" },
-        { id: 9, name: "Gin (Per kahon)", price: 1340, cat: "Alak", unit: "kahon", img: "https://i.pinimg.com/1200x/c0/28/00/c028005524a299d752a7ff938c93929b.jpg" },
-        { id: 10, name: "Gin (Per Piraso)", price: 120, cat: "Alak", unit: "Piraso", img: "https://i.pinimg.com/736x/78/30/b2/7830b2adc06b44701a9d927e95a9536f.jpg" },
-        { id: 11, name: "Mountain Dew", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/78/1d/56/781d56b561ea5c665c0a56d29e01869c.jpg" },
-        { id: 12, name: "C2", price: 20, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/736x/d5/54/5b/d5545bf15b8142c2554ea366adcbe659.jpg" }
+        { id: 6, name: "Royal", price: 25, cat: "Drinks", unit: "Piraso", img: "https://i.pinimg.com/1200x/0c/55/d5/0c55d53c665f8cf0f7bfd2e25674551d.jpg" }
     ];
 
+    // Load products from LocalStorage or use default
+    let products = JSON.parse(localStorage.getItem('fajilan_prods')) || defaultProducts;
     let cart = [];
     let currentCategory = 'All';
     let lastClick = 0;
 
-    function sanitize(str) { return str.replace(/[^\w\s]/gi, ''); }
+    function sanitize(str) { return str ? str.replace(/[^\w\s]/gi, '') : ''; }
 
     function init() {
+        const isOwner = sessionStorage.getItem('isFajilanOwner') === 'true';
+        document.getElementById('admin-panel').style.display = isOwner ? 'block' : 'none';
+
         const list = document.getElementById('products-list');
         const filtered = currentCategory === 'All' ? products : products.filter(p => p.cat === currentCategory);
         
@@ -234,15 +249,63 @@
                         <small style="color:#999">qty</small>
                     </div>
                     <button class="btn-add" onclick="addToCart(${p.id})">ADD TO CART</button>
+                    ${isOwner ? `<button class="admin-btn" style="display:block;" onclick="editProduct(${p.id})">EDIT PRICE</button>` : ''}
+                    ${isOwner ? `<button class="admin-btn" style="display:block; background:red;" onclick="deleteProduct(${p.id})">DELETE</button>` : ''}
                 </div>
             </div>
         `).join('');
     }
 
+    // --- ADMIN LOGIC ---
+    window.adminLogin = () => {
+        const pass = prompt("Enter Owner Password:");
+        if(pass === "fajilan2024") { // <--- ETO ANG PASSWORD MO
+            sessionStorage.setItem('isFajilanOwner', 'true');
+            location.reload();
+        }
+    };
+
+    window.logoutAdmin = () => {
+        sessionStorage.removeItem('isFajilanOwner');
+        location.reload();
+    };
+
+    window.addNewProduct = () => {
+        const name = prompt("Pangalan ng Produkto:");
+        const price = prompt("Presyo (Numero lang):");
+        const cat = prompt("Category (Rice, Frozen Meat, Drinks, Trigo, Alak):");
+        const img = prompt("Image URL (Link ng picture):");
+        
+        if(name && price && cat) {
+            products.push({ id: Date.now(), name, price: parseInt(price), cat, img: img || 'https://via.placeholder.com/250' });
+            localStorage.setItem('fajilan_prods', JSON.stringify(products));
+            init();
+        }
+    };
+
+    window.editProduct = (id) => {
+        const prod = products.find(p => p.id === id);
+        const newPrice = prompt(`Bagong presyo para sa ${prod.name}:`, prod.price);
+        if(newPrice) {
+            prod.price = parseInt(newPrice);
+            localStorage.setItem('fajilan_prods', JSON.stringify(products));
+            init();
+        }
+    };
+
+    window.deleteProduct = (id) => {
+        if(confirm("Sigurado ka bang buburahin ito?")) {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('fajilan_prods', JSON.stringify(products));
+            init();
+        }
+    }
+
+    // --- CART LOGIC ---
     window.filterProducts = (cat) => {
         currentCategory = cat;
         document.querySelectorAll('.cat-btn').forEach(btn => {
-            btn.classList.toggle('active', (cat === 'All' ? btn.innerText === 'Lahat' : btn.innerText === (cat === 'Rice' ? 'Rice' : cat === 'Drinks' ? 'Inumin' : cat == 'Trigo'? 'Trigo' : cat)));
+            btn.classList.toggle('active', (cat === 'All' ? btn.innerText === 'Lahat' : btn.innerText === (cat === 'Drinks' ? 'Inumin' : cat)));
         });
         init();
     };
@@ -252,12 +315,7 @@
         const qty = parseInt(document.getElementById(`qty-${id}`).value);
         if(qty < 1 || isNaN(qty)) return;
 
-        cart.push({
-            name: product.name,
-            qty: qty,
-            unit: product.unit,
-            totalPrice: product.price * qty
-        });
+        cart.push({ name: product.name, qty: qty, totalPrice: product.price * qty });
         updateCart();
     };
 
@@ -279,7 +337,7 @@
         itemsDiv.style.display = "block";
         itemsDiv.innerHTML = cart.map((item, idx) => `
             <div class="cart-item">
-                <span>${item.name} (${item.qty})</span>
+                <span>${item.name} (x${item.qty})</span>
                 <span>₱${item.totalPrice.toLocaleString()} <button onclick="remove(${idx})" style="color:red; border:none; background:none; cursor:pointer;">x</button></span>
             </div>
         `).join('');
@@ -290,60 +348,42 @@
 
     window.remove = (idx) => { cart.splice(idx, 1); updateCart(); };
 
-   window.checkout = () => {
+    window.checkout = () => {
         if (Date.now() - lastClick < 5000) return alert("Hinay-hinay lang po.");
         if(cart.length === 0) return alert("Empty cart!");
         
         const name = prompt("Pangalan:");
         const address = prompt("Address:");
-        const phoneNumber = prompt("Phone Number:");
         if(!name || !address) return;
 
-        // I-format ang order summary
         let summary = `FAJILAN FAM STORE\n`;
-        summary += `Name: ${sanitize(name)}\n`;
+        summary += `Customer: ${sanitize(name)}\n`;
         summary += `Address: ${sanitize(address)}\n`;
-        summary += `Contact: ${sanitize(phoneNumber || 'N/A')}\n`;
         summary += `--------------------\n`;
-        cart.forEach((item, i) => { 
-            summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}\n`; 
-        });
+        cart.forEach((item, i) => { summary += `${i+1}. ${item.name} x${item.qty} = ₱${item.totalPrice}\n`; });
         summary += `--------------------\n`;
         summary += `TOTAL: ₱${document.getElementById('cart-total').innerText}`;
 
-        // --- NEW: COPY TO CLIPBOARD FEATURE ---
-        const textArea = document.createElement("textarea");
-        textArea.value = summary;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            alert("Order details copied to clipboard! I-paste na lang sa Messenger.");
-        } catch (err) {
-            console.error('Hindi ma-copy ang text', err);
-        }
-        document.body.removeChild(textArea);
-        // --------------------------------------
+        // AUTO-COPY TO CLIPBOARD
+        const el = document.createElement('textarea');
+        el.value = summary;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        alert("Order copied! I-paste ito sa Messenger.");
 
         lastClick = Date.now();
-
-       
-        const choice = confirm("Saan mo gustong i-send ang order?\nChat - Messenger\nText - SMS/Text");
+        const choice = confirm("Saan isesend?\nOK - Messenger\nCancel - SMS");
 
         if (choice) {
-            
-            const fbUsername = "https://m.me/ivern.21903";
-            const encodedMsg = encodeURIComponent(summary);
-            window.location.href = `https://m.me/ivern.21903${fbUsername}?text=${encodedMsg}`;
+            // Messenger Link
+            window.location.href = `https://m.me/ivern.21903?text=${encodeURIComponent(summary)}`;
         } else {
             // SMS Link
-            const smsSummary = summary.replace(/\n/g, '%0a');
-            window.location.href = `sms:09193349618?body=${smsSummary}`;
+            window.location.href = `sms:09193349618?body=${encodeURIComponent(summary)}`;
         }
-
-       
-        cart = [];
-        updateCart();
+        cart = []; updateCart();
     };
 
     init();
